@@ -1,6 +1,7 @@
 import VerticalLayout from "./VerticalLayout.js";
 import ErrorPage from "./ErrorPage.js";
 import LoadingPage from "./LoadingPage.js";
+import { dateFrToFormatDate } from "../app/format.js";
 
 import Actions from "./Actions.js";
 
@@ -21,49 +22,17 @@ const row = (bill) => {
 
 const rows = (data) => {
   // Code to modify array elements order containing data by descending order in function of their date
-
-  const monthsDateFR = [
-    "Jan.",
-    "Fev.",
-    "Mar.",
-    "Avr.",
-    "Mai",
-    "Juin",
-    "Juil.",
-    "Aou.",
-    "Sep.",
-    "Oct.",
-    "Nov.",
-    "Dec.",
-  ];
-
-  // For each data obj, data.dataCompare store date in format YYYY-MM-DD
-  data.forEach((element) => {
-    let formatedDate = element.date;
-    let arrFormatedDate = formatedDate.split(" ");
-    arrFormatedDate.reverse();
-    // Year format
-    arrFormatedDate[0] = "20" + arrFormatedDate[0];
-    // Month format
-    arrFormatedDate[1] = monthsDateFR.indexOf(arrFormatedDate[1]) + 1;
-    if (arrFormatedDate[1] < 10) {
-      arrFormatedDate[1] = "0" + arrFormatedDate[1];
-    }
-    // Day format
-    if (arrFormatedDate[2] < 10) {
-      arrFormatedDate[2] = "0" + arrFormatedDate[2];
-    }
-    // Storage date format
-    element.dateCompare =
-      arrFormatedDate[0] + "-" + arrFormatedDate[1] + "-" + arrFormatedDate[2];
+  data.forEach((d) => {
+    d.dateFormatted = dateFrToFormatDate(d.date);
   });
-
-  // data sorted by descending order in function of data.dateCompare
-  data = data.sort((a, b) => (a.dateCompare < b.dateCompare ? 1 : -1));
-
   // END bug correction code
 
-  return data && data.length ? data.map((bill) => row(bill)).join("") : "";
+  return data && data.length
+    ? data
+        .sort((a, b) => (a.dateFormatted < b.dateFormatted ? 1 : -1))
+        .map((bill) => row(bill))
+        .join("")
+    : "";
 };
 
 export default ({ data: bills, loading, error }) => {

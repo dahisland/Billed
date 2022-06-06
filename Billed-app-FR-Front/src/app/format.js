@@ -29,6 +29,44 @@ export const formatDate = (dateStr) => {
   }
 };
 
+// Format french date in format YYYY-MM-DD
+
+export function dateFrToFormatDate(dat) {
+  const monthsDateFR = [
+    "Jan.",
+    "Fev.",
+    "Mar.",
+    "Avr.",
+    "Mai",
+    "Juin",
+    "Juil.",
+    "Aou.",
+    "Sep.",
+    "Oct.",
+    "Nov.",
+    "Dec.",
+  ];
+  let formatedDate = dat;
+  let arrFormatedDate = formatedDate.split(" ");
+  arrFormatedDate.reverse();
+  // Year format
+  arrFormatedDate[0] = "20" + arrFormatedDate[0];
+  // Month format
+  arrFormatedDate[1] = monthsDateFR.indexOf(arrFormatedDate[1]) + 1;
+  if (arrFormatedDate[1] < 10) {
+    arrFormatedDate[1] = "0" + arrFormatedDate[1];
+  }
+  // Day format
+  if (arrFormatedDate[2] < 10) {
+    arrFormatedDate[2] = "0" + arrFormatedDate[2];
+  }
+  return (
+    arrFormatedDate[0] + "-" + arrFormatedDate[1] + "-" + arrFormatedDate[2]
+  );
+}
+
+//
+
 export const formatStatus = (status) => {
   switch (status) {
     case "pending":
