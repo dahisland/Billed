@@ -22,17 +22,15 @@ const row = (bill) => {
 
 const rows = (data) => {
   // Code to modify array elements order containing data by descending order in function of their date
-  data.forEach((d) => {
-    d.dateFormatted = dateFrToFormatDate(d.date);
-  });
+  if (data && data.length) {
+    data.forEach((d) => {
+      d.dateFormatted = dateFrToFormatDate(d.date);
+    });
+    data = data.sort((a, b) => (a.dateFormatted < b.dateFormatted ? 1 : -1));
+  }
   // END bug correction code
 
-  return data && data.length
-    ? data
-        .sort((a, b) => (a.dateFormatted < b.dateFormatted ? 1 : -1))
-        .map((bill) => row(bill))
-        .join("")
-    : "";
+  return data && data.length ? data.map((bill) => row(bill)).join("") : "";
 };
 
 export default ({ data: bills, loading, error }) => {
