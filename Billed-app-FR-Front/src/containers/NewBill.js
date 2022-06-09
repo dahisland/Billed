@@ -25,10 +25,9 @@ export default class NewBill {
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
 
-    // Code to autorize only jpeg png or jpg files
-
+    // Code to autorize only jpeg, png or jpg files
     const fileInput = this.document.querySelector(`input[data-testid="file"]`);
-    const regex = new RegExp("(.png|.jpeg|.jpg)$");
+    const regex = new RegExp("(.png|.jpeg|.jpg|.PNG|.JPEG|.JPG)$");
     const message = this.document.createElement("div");
     message.classList.add("error-message");
     message.innerHTML = `Fichier ${fileName} non valide`;
@@ -37,11 +36,11 @@ export default class NewBill {
         this.document.querySelector(".error-message").remove();
       }
       fileInput.parentNode.insertBefore(message, fileInput);
-      this.document.querySelector(`input[data-testid="file"]`).value = "";
     } else {
       if (this.document.querySelector(".error-message")) {
         this.document.querySelector(".error-message").remove();
       }
+      //end code correction
 
       const formData = new FormData();
       const email = JSON.parse(localStorage.getItem("user")).email;
@@ -64,35 +63,42 @@ export default class NewBill {
         .catch((error) => console.error(error));
     }
   };
-  //end code correction
 
   handleSubmit = (e) => {
     e.preventDefault();
-    console.log(
-      'e.target.querySelector(`input[data-testid="datepicker"]`).value',
-      e.target.querySelector(`input[data-testid="datepicker"]`).value
-    );
-    const email = JSON.parse(localStorage.getItem("user")).email;
-    const bill = {
-      email,
-      type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
-      name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
-      amount: parseInt(
-        e.target.querySelector(`input[data-testid="amount"]`).value
-      ),
-      date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
-      vat: e.target.querySelector(`input[data-testid="vat"]`).value,
-      pct:
-        parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) ||
-        20,
-      commentary: e.target.querySelector(`textarea[data-testid="commentary"]`)
-        .value,
-      fileUrl: this.fileUrl,
-      fileName: this.fileName,
-      status: "pending",
-    };
-    this.updateBill(bill);
-    this.onNavigate(ROUTES_PATH["Bills"]);
+    // Code to autorize only jpeg png or jpg files
+    const fileInput = this.document.querySelector(`input[data-testid="file"]`);
+    const regex = new RegExp("(.png|.jpeg|.jpg|.PNG|.JPEG|.JPG)$");
+
+    if (fileInput.value.match(regex)) {
+      // End code correction
+      console.log(
+        'e.target.querySelector(`input[data-testid="datepicker"]`).value',
+        e.target.querySelector(`input[data-testid="datepicker"]`).value
+      );
+      const email = JSON.parse(localStorage.getItem("user")).email;
+      const bill = {
+        email,
+        type: e.target.querySelector(`select[data-testid="expense-type"]`)
+          .value,
+        name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
+        amount: parseInt(
+          e.target.querySelector(`input[data-testid="amount"]`).value
+        ),
+        date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
+        vat: e.target.querySelector(`input[data-testid="vat"]`).value,
+        pct:
+          parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) ||
+          20,
+        commentary: e.target.querySelector(`textarea[data-testid="commentary"]`)
+          .value,
+        fileUrl: this.fileUrl,
+        fileName: this.fileName,
+        status: "pending",
+      };
+      this.updateBill(bill);
+      this.onNavigate(ROUTES_PATH["Bills"]);
+    }
   };
 
   // not need to cover this function by tests
