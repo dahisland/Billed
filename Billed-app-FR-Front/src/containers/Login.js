@@ -50,11 +50,14 @@ export default class Login {
     e.preventDefault();
     const user = {
       type: "Admin",
+      // [BUG REPORT "Login" CORRECTION] - Wrong input selected
       email: e.target.querySelector(`input[data-testid="admin-email-input"]`)
         .value,
+      // [BUG REPORT "Login" CORRECTION] - Wrong input selected
       password: e.target.querySelector(
         `input[data-testid="admin-password-input"]`
       ).value,
+      // END [BUG REPORT "Login" CORRECTION]
       status: "connected",
     };
     this.localStorage.setItem("user", JSON.stringify(user));

@@ -20,14 +20,14 @@ const row = (bill) => {
 };
 
 const rows = (data) => {
-  // Code to modify array elements order containing data by descending order in function of their date
+  // [BUG REPORT "Bills" CORRECTION] - Modify array elements order containing data by descending order in function of their date
   if (data && data.length) {
     data.forEach((d) => {
       d.dateFormatted = dateFrToFormatDate(d.date);
     });
     data = data.sort((a, b) => (a.dateFormatted < b.dateFormatted ? 1 : -1));
   }
-  // END bug correction code
+  // END [BUG REPORT "Bills" CORRECTION]
 
   return data && data.length ? data.map((bill) => row(bill)).join("") : "";
 };

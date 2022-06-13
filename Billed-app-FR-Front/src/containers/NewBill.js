@@ -66,12 +66,12 @@ export default class NewBill {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    // Code to autorize only jpeg png or jpg files
+    // [BUG HUNT "Bills" CORRECTION] - Code to autorize only jpeg png or jpg files
     const fileInput = this.document.querySelector(`input[data-testid="file"]`);
     const regex = new RegExp("(.png|.jpeg|.jpg|.PNG|.JPEG|.JPG)$");
 
     if (fileInput.value.match(regex)) {
-      // End code correction
+      // END [BUG HUNT "Bills" CORRECTION]
       console.log(
         'e.target.querySelector(`input[data-testid="datepicker"]`).value',
         e.target.querySelector(`input[data-testid="datepicker"]`).value

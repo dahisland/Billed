@@ -5,7 +5,8 @@ export const formatDate = (dateStr) => {
   const da = new Intl.DateTimeFormat("fr", { day: "2-digit" }).format(date);
   const month = mo.charAt(0).toUpperCase() + mo.slice(1);
 
-  // Add cases to resolve confusion between french months June & July
+  // [BUG REPORT "Bills" CORRECTION] - Modify array elements order containing data by descending order in function of their date
+  // Add switch cases to resolve confusion between french months June & July
   switch (month) {
     case "Juin":
       return `${parseInt(da)} ${month.substr(0, 4)} ${ye
@@ -29,8 +30,7 @@ export const formatDate = (dateStr) => {
   }
 };
 
-// Format french date in format YYYY-MM-DD
-
+// Add function to Format french date in format YYYY-MM-DD (called in BillUI.js)
 export function dateFrToFormatDate(dat) {
   const monthsDateFR = [
     "Jan.",
@@ -65,7 +65,7 @@ export function dateFrToFormatDate(dat) {
   );
 }
 
-//
+// END [BUG REPORT "Bills" CORRECTION]
 
 export const formatStatus = (status) => {
   switch (status) {
