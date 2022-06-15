@@ -33,6 +33,7 @@ const rows = (data) => {
 };
 
 export default ({ data: bills, loading, error }) => {
+  // Added data-testid for modal-body
   const modal = () => `
     <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -43,7 +44,7 @@ export default ({ data: bills, loading, error }) => {
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" data-testid='container-proof-modal'> 
           </div>
         </div>
       </div>

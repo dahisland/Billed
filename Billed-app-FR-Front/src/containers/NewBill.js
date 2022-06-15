@@ -25,7 +25,7 @@ export default class NewBill {
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
 
-    // Code to autorize only jpeg, png or jpg files
+    // [BUG HUNT "Bills" CORRECTION] - Autorize only jpeg, png or jpg files
     const fileInput = this.document.querySelector(`input[data-testid="file"]`);
     const regex = new RegExp("(.png|.jpeg|.jpg|.PNG|.JPEG|.JPG)$");
     const message = this.document.createElement("div");
@@ -40,7 +40,7 @@ export default class NewBill {
       if (this.document.querySelector(".error-message")) {
         this.document.querySelector(".error-message").remove();
       }
-      //end code correction
+      // END [BUG HUNT "Bills" CORRECTION]
 
       const formData = new FormData();
       const email = JSON.parse(localStorage.getItem("user")).email;

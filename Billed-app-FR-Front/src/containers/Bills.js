@@ -30,7 +30,7 @@ export default class {
     $("#modaleFile")
       .find(".modal-body")
       .html(
-        `<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src=${billUrl} alt="Bill" /></div>`
+        `<div style='text-align: center;' class="bill-proof-container" data-testid='img-proof-modal'><img width=${imgWidth} src=${billUrl} alt="Bill" /></div>`
       );
     $("#modaleFile").modal("show");
   };
@@ -59,7 +59,8 @@ export default class {
               };
             }
           });
-          console.log("length", bills.length);
+          console.log(snapshot);
+          console.log(bills[0].date);
           return bills;
         });
     }
