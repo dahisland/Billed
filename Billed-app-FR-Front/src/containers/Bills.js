@@ -59,8 +59,6 @@ export default class {
               };
             }
           });
-          console.log(snapshot);
-          console.log(bills[0].date);
           return bills;
         });
     }
