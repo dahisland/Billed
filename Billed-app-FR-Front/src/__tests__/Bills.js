@@ -15,8 +15,6 @@ import router from "../app/Router.js";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
-//jest.mock("../app/store", () => mockStore)
-
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
     test("Then bill icon in vertical layout should be highlighted", async () => {
@@ -38,7 +36,9 @@ describe("Given I am connected as an employee", () => {
       const windowIcon = screen.getByTestId("icon-window");
       //to-do write expect expression
       //[UNIT TEST COMPLETION - Add expect] - Control if class is added for icon (MM)
-      expect(windowIcon.getAttribute("class")).toBe("active-icon");
+      expect(windowIcon.getAttribute("class")).toMatch(
+        new RegExp("active-icon")
+      );
     });
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills });
@@ -123,10 +123,14 @@ describe("Given I am a user connected as Employee", () => {
       const root = document.createElement("div");
       root.setAttribute("id", "root");
       document.body.append(root);
+      // Use mock store to verify if data is fetched
+      const store = mockStore;
       router();
       window.onNavigate(ROUTES_PATH.Bills);
       const contentBills = await screen.getByTestId("tbody");
-
+      // Array bills must exist if data has benn fetched
+      expect(bills).toBeDefined();
+      expect(bills.length).toBe(4);
       expect(contentBills.innerHTML).not.toBe("");
     });
     // [UNIT TEST] - Test with corrupted/uncorrupted dates (MM)
@@ -153,7 +157,7 @@ describe("Given I am a user connected as Employee", () => {
         expect(firstBillDisplayed).toMatch(new RegExp(`${dateInStore}`));
         expect(firstBillDisplayed).toMatch(new RegExp(`${statusInStore}`));
       });
-      test("Then if date is corrupted, Then bills should be displayed with date not formatted", async () => {
+      test("Then if date is corrupted, bills should be displayed with date not formatted", async () => {
         const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname });
         };
@@ -177,5 +181,50 @@ describe("Given I am a user connected as Employee", () => {
         expect(firstBillDisplayed).toMatch(new RegExp(`${dateInStore}`));
       });
     });
+    // [UNIT TEST] - Errors 404 & 500 for API (MM)
+    describe("When an error occurs by fetching bills with API", () => {
+      beforeEach(() => {
+        jest.spyOn(mockStore, "bills");
+        window.localStorage.setItem(
+          "user",
+          JSON.stringify({
+            type: "Employee",
+            email: "a@a",
+          })
+        );
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        document.body.appendChild(root);
+        router();
+      });
+      test("Then if fetch bills fails with 404 message error, It should display 404 error message", async () => {
+        mockStore.bills.mockImplementationOnce(() => {
+          return {
+            list: () => {
+              return Promise.reject(new Error("Erreur 404"));
+            },
+          };
+        });
+        window.onNavigate(ROUTES_PATH.Bills);
+        document.body.innerHTML = BillsUI({ error: "Erreur 404" });
+        const message = await screen.getByText(/Erreur 404/);
+        expect(message).toBeTruthy();
+      });
+      test("Then if fetch bills fails with 500 message error, It should display 500 error message", async () => {
+        mockStore.bills.mockImplementationOnce(() => {
+          return {
+            list: () => {
+              return Promise.reject(new Error("Erreur 500"));
+            },
+          };
+        });
+
+        window.onNavigate(ROUTES_PATH.Bills);
+        document.body.innerHTML = BillsUI({ error: "Erreur 500" });
+        const message = await screen.getByText(/Erreur 500/);
+        expect(message).toBeTruthy();
+      });
+    });
+    //
   });
 });
