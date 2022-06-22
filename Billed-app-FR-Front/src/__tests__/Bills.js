@@ -128,7 +128,7 @@ describe("Given I am a user connected as Employee", () => {
       router();
       window.onNavigate(ROUTES_PATH.Bills);
       const contentBills = await screen.getByTestId("tbody");
-      // Array bills must exist if data has benn fetched
+      // Array bills must exist if data has been fetched
       expect(bills).toBeDefined();
       expect(bills.length).toBe(4);
       expect(contentBills.innerHTML).not.toBe("");

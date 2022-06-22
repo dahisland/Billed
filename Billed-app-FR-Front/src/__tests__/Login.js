@@ -4,6 +4,8 @@
 
 import LoginUI from "../views/LoginUI";
 import Login from "../containers/Login.js";
+import { mockStore } from "../__mocks__/store.js";
+import Store from "../app/Store.js";
 import { ROUTES } from "../constants/routes";
 import { fireEvent, screen } from "@testing-library/dom";
 
@@ -225,6 +227,98 @@ describe("Given that I am a user on login page", () => {
 
     test("It should renders HR dashboard page", () => {
       expect(screen.getByText("Validations")).toBeTruthy();
+    });
+  });
+  //
+  //
+  // [TEST FOR ERROR DURING EMPLOYEE SUBMIT]
+  describe("When I click on employee button Login In and an error occurs", () => {
+    test("Then a new user should have been created", async () => {
+      document.body.innerHTML = LoginUI();
+      const inputEmailUser = screen.getByTestId("admin-email-input");
+      fireEvent.change(inputEmailUser, {
+        target: { value: "employeeError@email.com" },
+      });
+      const inputPasswordUser = screen.getByTestId("employee-password-input");
+      fireEvent.change(inputPasswordUser, { target: { value: "azerty" } });
+      const form = screen.getByTestId("form-employee");
+
+      // we have to mock navigation to test it
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const store = null;
+      let PREVIOUS_LOCATION = "";
+
+      const login = new Login({
+        document,
+        localStorage: window.localStorage,
+        onNavigate,
+        PREVIOUS_LOCATION,
+        store,
+      });
+
+      const handleSubmit = jest.fn(login.handleSubmitEmployee);
+      // login.createUser = jest.fn();
+      // login.login = jest
+      //   .fn()
+      //   .mockImplementation(() => Promise.reject(new Error("Error")));
+      // login.createUser = jest.spyOn(login, "createUser");
+      login.login = jest.fn().mockRejectedValue(new Error("Error"));
+      form.addEventListener("submit", handleSubmit);
+      fireEvent.submit(form);
+      expect(handleSubmit).toHaveBeenCalled();
+      expect(login.login).toHaveBeenCalled();
+      expect(login.login).toReturn();
+      // expect(login.createUser).toHaveBeenCalled();
+
+      // expect(login.login).toThrowError("my error");
+      // expect(consoleSpy).toBe("User with johndoe@email.com is created");
+      // expect(login.createUser).toHaveBeenCalled();
+    });
+  });
+  // [TEST FOR ERROR DURING ADMIN SUBMIT]
+  describe("When I click on admin button Login In and an error occurs", () => {
+    test("Then a new user should have been created", async () => {
+      document.body.innerHTML = LoginUI();
+      const inputEmailUser = screen.getByTestId("admin-email-input");
+      fireEvent.change(inputEmailUser, {
+        target: { value: "adminError@email.com" },
+      });
+      const inputPasswordUser = screen.getByTestId("admin-password-input");
+      fireEvent.change(inputPasswordUser, { target: { value: "azerty" } });
+      const form = screen.getByTestId("form-admin");
+
+      // we have to mock navigation to test it
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const store = null;
+      let PREVIOUS_LOCATION = "";
+      const login = new Login({
+        document,
+        localStorage: window.localStorage,
+        onNavigate,
+        PREVIOUS_LOCATION,
+        store,
+      });
+
+      const handleSubmit = jest.fn(login.handleSubmitAdmin);
+      // const createUser = await jest.fn(login.createUser);
+      // login.createUser = jest.fn();
+      // login.login = jest
+      //   .fn()
+      //   .mockImplementation(() => Promise.reject(new Error("Error")));
+      login.login = jest.fn().mockRejectedValue(new Error("Error"));
+      form.addEventListener("submit", handleSubmit);
+      fireEvent.submit(form);
+      expect(handleSubmit).toHaveBeenCalled();
+      expect(login.login).toHaveBeenCalled();
+      expect(login.login).toReturn();
+
+      // expect(login.login).toThrowError("my error");
+      // expect(consoleSpy).toBe("User with johndoe@email.com is created");
+      // expect(login.createUser).toHaveBeenCalled();
     });
   });
 });

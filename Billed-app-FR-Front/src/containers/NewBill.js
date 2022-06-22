@@ -22,16 +22,16 @@ export default class NewBill {
     e.preventDefault();
     const file = this.document.querySelector(`input[data-testid="file"]`)
       .files[0];
-    const filePath = e.target.value.split(/\\/g);
-    const fileName = filePath[filePath.length - 1];
+    // const filePath = e.target.value.split(/\\/g);
+    const fileName = file.name;
 
     // [BUG HUNT "Bills" CORRECTION] - Autorize only jpeg, png or jpg files
     const fileInput = this.document.querySelector(`input[data-testid="file"]`);
     const regex = new RegExp("(.png|.jpeg|.jpg|.PNG|.JPEG|.JPG)$");
     const message = this.document.createElement("div");
     message.classList.add("error-message");
-    message.innerHTML = `Fichier ${fileName} non valide`;
-    if (e.target.value.match(regex) == null) {
+    message.innerHTML = `Fichier "${fileName}" non valide`;
+    if (fileName.match(regex) == null) {
       if (this.document.querySelector(".error-message")) {
         this.document.querySelector(".error-message").remove();
       }
@@ -46,7 +46,6 @@ export default class NewBill {
       const email = JSON.parse(localStorage.getItem("user")).email;
       formData.append("file", file);
       formData.append("email", email);
-
       this.store
         .bills()
         .create({
