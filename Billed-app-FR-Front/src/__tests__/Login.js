@@ -259,22 +259,13 @@ describe("Given that I am a user on login page", () => {
       });
 
       const handleSubmit = jest.fn(login.handleSubmitEmployee);
-      // login.createUser = jest.fn();
-      // login.login = jest
-      //   .fn()
-      //   .mockImplementation(() => Promise.reject(new Error("Error")));
-      // login.createUser = jest.spyOn(login, "createUser");
       login.login = jest.fn().mockRejectedValue(new Error("Error"));
       form.addEventListener("submit", handleSubmit);
       fireEvent.submit(form);
+
       expect(handleSubmit).toHaveBeenCalled();
       expect(login.login).toHaveBeenCalled();
       expect(login.login).toReturn();
-      // expect(login.createUser).toHaveBeenCalled();
-
-      // expect(login.login).toThrowError("my error");
-      // expect(consoleSpy).toBe("User with johndoe@email.com is created");
-      // expect(login.createUser).toHaveBeenCalled();
     });
   });
   // [TEST FOR ERROR DURING ADMIN SUBMIT]
@@ -304,21 +295,13 @@ describe("Given that I am a user on login page", () => {
       });
 
       const handleSubmit = jest.fn(login.handleSubmitAdmin);
-      // const createUser = await jest.fn(login.createUser);
-      // login.createUser = jest.fn();
-      // login.login = jest
-      //   .fn()
-      //   .mockImplementation(() => Promise.reject(new Error("Error")));
       login.login = jest.fn().mockRejectedValue(new Error("Error"));
       form.addEventListener("submit", handleSubmit);
       fireEvent.submit(form);
+
       expect(handleSubmit).toHaveBeenCalled();
       expect(login.login).toHaveBeenCalled();
       expect(login.login).toReturn();
-
-      // expect(login.login).toThrowError("my error");
-      // expect(consoleSpy).toBe("User with johndoe@email.com is created");
-      // expect(login.createUser).toHaveBeenCalled();
     });
   });
 });

@@ -128,10 +128,14 @@ describe("Given I am a user connected as Employee", () => {
       router();
       window.onNavigate(ROUTES_PATH.Bills);
       const contentBills = await screen.getByTestId("tbody");
-      // Array bills must exist if data has been fetched
-      expect(bills).toBeDefined();
-      expect(bills.length).toBe(4);
+      // Select in the store a data that should have been fetched & displayed
+      const arrBillsStoredMock = await store.bills().list();
+      const typeFirstBill = arrBillsStoredMock[0].type;
+
+      // Rows must have been created & displayed with data fetched
       expect(contentBills.innerHTML).not.toBe("");
+      expect(contentBills.children.length).toBe(4);
+      expect(contentBills.innerHTML).toMatch(typeFirstBill);
     });
     // [UNIT TEST] - Test with corrupted/uncorrupted dates (MM)
     describe("When bills have been fetched from mock API GET", () => {

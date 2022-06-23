@@ -43,46 +43,98 @@ describe("Given I am connected as an employee", () => {
         new RegExp("active-icon")
       );
     });
+    //
     describe("When I load a proof file", () => {
-      test("on change file", async () => {
-        const html = NewBillUI();
-        document.body.innerHTML = html;
+      describe("When the file is in right format (image)", () => {
+        test("on change file", async () => {
+          expect.hasAssertions();
 
-        Object.defineProperty(window, "localStorage", {
-          value: localStorageMock,
+          const html = NewBillUI();
+          document.body.innerHTML = html;
+
+          Object.defineProperty(window, "localStorage", {
+            value: localStorageMock,
+          });
+          window.localStorage.setItem(
+            "user",
+            JSON.stringify({
+              type: "Employee",
+              email: "jondoe@mail.com",
+              jwt: "jwt",
+            })
+          );
+
+          //to-do write assertion
+          const onNavigate = (pathname) => {
+            document.body.innerHTML = ROUTES({ pathname });
+          };
+          const newBill = new NewBill({
+            document,
+            onNavigate,
+            store: mockEmptyStore,
+            localStorage: window.localStorage,
+          });
+
+          const input = document.querySelector(`input[data-testid="file"]`);
+          const onFileChange = jest.fn(newBill.handleChangeFile);
+          const eventLoadFilePNG = {
+            target: {
+              files: [new File(["..."], "test.png", { type: "image/png" })],
+            },
+          };
+          input.addEventListener("change", onFileChange);
+          fireEvent.change(input, eventLoadFilePNG);
+
+          expect(input.files.length).toBe(1);
+          expect(onFileChange).toHaveBeenCalled();
+          expect(input.files[0].name).toBe("test.png");
         });
-        window.localStorage.setItem(
-          "user",
-          JSON.stringify({
-            type: "Employee",
-            email: "jondoe@mail.com",
-            jwt: "jwt",
-          })
-        );
+      });
+      describe("When the file is in a non accepted format", () => {
+        test("then a message error should be displayed", async () => {
+          expect.hasAssertions();
 
-        //to-do write assertion
-        const onNavigate = (pathname) => {
-          document.body.innerHTML = ROUTES({ pathname });
-        };
-        const newBill = new NewBill({
-          document,
-          onNavigate,
-          store,
-          localStorage: window.localStorage,
+          const html = NewBillUI();
+          document.body.innerHTML = html;
+
+          Object.defineProperty(window, "localStorage", {
+            value: localStorageMock,
+          });
+          window.localStorage.setItem(
+            "user",
+            JSON.stringify({
+              type: "Employee",
+              email: "jondoe@mail.com",
+              jwt: "jwt",
+            })
+          );
+
+          //to-do write assertion
+          const onNavigate = (pathname) => {
+            document.body.innerHTML = ROUTES({ pathname });
+          };
+          const newBill = new NewBill({
+            document,
+            onNavigate,
+            store: mockStore,
+            localStorage: window.localStorage,
+          });
+
+          const input = document.querySelector(`input[data-testid="file"]`);
+          const onFileChange = jest.fn(newBill.handleChangeFile);
+          const eventLoadFilePDF = {
+            target: {
+              files: [new File(["..."], "test.pdf", { type: "document/pdf" })],
+            },
+          };
+          input.addEventListener("change", onFileChange);
+          fireEvent.change(input, eventLoadFilePDF);
+
+          const fileNotAllowed = screen.getByText(
+            `Fichier "test.pdf" non valide`
+          );
+          expect(fileNotAllowed).toBeTruthy();
         });
-
-        const input = document.querySelector(`input[data-testid="file"]`);
-        const onFileChange = jest.fn(newBill.handleChangeFile);
-        const eventLoadFilePNG = {
-          target: {
-            files: [new File(["(⌐□_□)"], "test.png", { type: "image/png" })],
-          },
-        };
-        input.addEventListener("change", onFileChange);
-        fireEvent.change(input, eventLoadFilePNG);
-        expect(input.files.length).toBe(1);
-        expect(onFileChange).toHaveBeenCalled();
-        expect(input.files[0].name).toBe("test.png");
       });
     });
   });

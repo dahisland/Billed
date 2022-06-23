@@ -160,7 +160,7 @@ const mockedEmptyBills = {
     return Promise.resolve([]);
   },
   create(bill) {
-    return Promise.resolve();
+    return Promise.resolve(bill);
   },
   update(bill) {
     return Promise.resolve({});
