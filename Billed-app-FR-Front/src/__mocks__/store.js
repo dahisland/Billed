@@ -154,22 +154,3 @@ export const mockCorruptedStore = {
     //return {}
   },
 };
-
-const mockedEmptyBills = {
-  list() {
-    return Promise.resolve([]);
-  },
-  create(bill) {
-    return Promise.resolve(bill);
-  },
-  update(bill) {
-    return Promise.resolve({});
-  },
-};
-
-export const mockEmptyStore = {
-  bills() {
-    return mockedEmptyBills;
-    //return {}
-  },
-};

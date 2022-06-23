@@ -134,7 +134,7 @@ describe("Given I am a user connected as Employee", () => {
 
       // Rows must have been created & displayed with data fetched
       expect(contentBills.innerHTML).not.toBe("");
-      expect(contentBills.children.length).toBe(4);
+      expect(contentBills.children.length).toEqual(arrBillsStoredMock.length);
       expect(contentBills.innerHTML).toMatch(typeFirstBill);
     });
     // [UNIT TEST] - Test with corrupted/uncorrupted dates (MM)

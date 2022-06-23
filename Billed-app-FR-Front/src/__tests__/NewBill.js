@@ -9,11 +9,7 @@ import NewBill from "../containers/NewBill.js";
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import store from "../app/Store.js";
-import {
-  mockStore,
-  mockCorruptedStore,
-  mockEmptyStore,
-} from "../__mocks__/store.js";
+import { mockStore } from "../__mocks__/store.js";
 import router from "../app/Router.js";
 import "@testing-library/jest-dom";
 
@@ -71,7 +67,7 @@ describe("Given I am connected as an employee", () => {
           const newBill = new NewBill({
             document,
             onNavigate,
-            store: mockEmptyStore,
+            store: mockStore,
             localStorage: window.localStorage,
           });
 

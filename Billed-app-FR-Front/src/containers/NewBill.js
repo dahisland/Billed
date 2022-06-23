@@ -23,10 +23,10 @@ export default class NewBill {
     const file = this.document.querySelector(`input[data-testid="file"]`)
       .files[0];
     // const filePath = e.target.value.split(/\\/g);
-    const fileName = file.name;
 
     // [BUG HUNT "Bills" CORRECTION] - Autorize only jpeg, png or jpg files
     const fileInput = this.document.querySelector(`input[data-testid="file"]`);
+    const fileName = file.name;
     const regex = new RegExp("(.png|.jpeg|.jpg|.PNG|.JPEG|.JPG)$");
     const message = this.document.createElement("div");
     message.classList.add("error-message");
@@ -35,7 +35,7 @@ export default class NewBill {
       if (this.document.querySelector(".error-message")) {
         this.document.querySelector(".error-message").remove();
       }
-      fileInput.parentNode.insertBefore(message, fileInput);
+      fileInput.parentNode.appendChild(message);
     } else {
       if (this.document.querySelector(".error-message")) {
         this.document.querySelector(".error-message").remove();
@@ -66,10 +66,9 @@ export default class NewBill {
   handleSubmit = (e) => {
     e.preventDefault();
     // [BUG HUNT "Bills" CORRECTION] - Code to autorize only jpeg png or jpg files
-    const fileInput = this.document.querySelector(`input[data-testid="file"]`);
+    const file = document.querySelector(`input[data-testid="file"]`).files[0];
     const regex = new RegExp("(.png|.jpeg|.jpg|.PNG|.JPEG|.JPG)$");
-
-    if (fileInput.value.match(regex)) {
+    if (file.name.match(regex)) {
       // END [BUG HUNT "Bills" CORRECTION]
       console.log(
         'e.target.querySelector(`input[data-testid="datepicker"]`).value',
