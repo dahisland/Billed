@@ -66,9 +66,7 @@ export default class NewBill {
   handleSubmit = (e) => {
     e.preventDefault();
     // [BUG HUNT "Bills" CORRECTION] - Code to autorize only jpeg png or jpg files
-    const file = document.querySelector(`input[data-testid="file"]`).files[0];
-    const regex = new RegExp("(.png|.jpeg|.jpg|.PNG|.JPEG|.JPG)$");
-    if (file.name.match(regex)) {
+    if (!this.document.querySelector(".error-message")) {
       // END [BUG HUNT "Bills" CORRECTION]
       console.log(
         'e.target.querySelector(`input[data-testid="datepicker"]`).value',

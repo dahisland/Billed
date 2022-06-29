@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { screen, waitFor } from "@testing-library/dom";
+import { screen, waitFor, fireEvent } from "@testing-library/dom";
 import BillsUI from "../views/BillsUI.js";
 import { bills } from "../fixtures/bills.js";
 import Bills from "../containers/Bills.js";
@@ -57,10 +57,11 @@ describe("Given I am connected as an employee", () => {
         const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname });
         };
+
         const getBillsToDisplay = new Bills({
           document,
           onNavigate,
-          store,
+          store: mockStore,
           localStorage: window.localStorage,
         });
         document.body.innerHTML = BillsUI({ data: bills });
@@ -72,7 +73,7 @@ describe("Given I am connected as an employee", () => {
           "click",
           jest.fn(getBillsToDisplay.handleClickNewBill)
         );
-        userEvent.click(btnAddBill);
+        fireEvent.click(btnAddBill);
         const textSendBill = screen.getByText("Envoyer une note de frais");
 
         expect(textSendBill).toBeTruthy();
@@ -80,33 +81,36 @@ describe("Given I am connected as an employee", () => {
     });
     // [UNIT TEST] - Function "Display proof" (MM)
     describe("When I click on icon eye : display proof", () => {
-      test("Then page should open a modale displaying proof", () => {
+      test("Then page should open a modal displaying proof", () => {
         const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname });
         };
-        const getBillsToDisplay = new Bills({
-          document,
-          onNavigate,
-          store,
-          localStorage: window.localStorage,
-        });
 
         document.body.innerHTML = BillsUI({ data: bills });
         const btnIconEye = screen.getAllByTestId("icon-eye");
 
         $.fn.modal = jest.fn();
 
-        btnIconEye.forEach((icon) => {
-          expect(icon).toBeDefined();
-          icon.addEventListener(
-            "click",
-            jest.fn(getBillsToDisplay.handleClickIconEye(icon))
-          );
+        const getBillsToDisplay = new Bills({
+          document,
+          onNavigate,
+          store: mockStore,
+          localStorage: window.localStorage,
         });
-        userEvent.click(btnIconEye[0]);
-        const containerProof = screen.getByTestId("container-proof-modal");
 
-        expect(containerProof).toBeTruthy();
+        expect(btnIconEye[0]).toBeDefined();
+
+        const launchModal = jest.fn(
+          getBillsToDisplay.handleClickIconEye(btnIconEye[0])
+        );
+
+        btnIconEye[0].addEventListener("click", launchModal);
+        fireEvent.click(btnIconEye[0]);
+
+        const imgProof = screen.getByTestId("img-proof-modal");
+
+        expect(launchModal).toHaveBeenCalled();
+        expect(imgProof).toBeTruthy();
       });
     });
   });
@@ -189,6 +193,7 @@ describe("Given I am a user connected as Employee", () => {
     describe("When an error occurs by fetching bills with API", () => {
       beforeEach(() => {
         jest.spyOn(mockStore, "bills");
+
         window.localStorage.setItem(
           "user",
           JSON.stringify({
@@ -209,9 +214,12 @@ describe("Given I am a user connected as Employee", () => {
             },
           };
         });
+
         window.onNavigate(ROUTES_PATH.Bills);
         document.body.innerHTML = BillsUI({ error: "Erreur 404" });
+        await new Promise(process.nextTick);
         const message = await screen.getByText(/Erreur 404/);
+
         expect(message).toBeTruthy();
       });
       test("Then if fetch bills fails with 500 message error, It should display 500 error message", async () => {
@@ -225,7 +233,9 @@ describe("Given I am a user connected as Employee", () => {
 
         window.onNavigate(ROUTES_PATH.Bills);
         document.body.innerHTML = BillsUI({ error: "Erreur 500" });
+        await new Promise(process.nextTick);
         const message = await screen.getByText(/Erreur 500/);
+
         expect(message).toBeTruthy();
       });
     });
