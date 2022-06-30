@@ -91,17 +91,36 @@ describe("Given I am connected as an Admin", () => {
       expect(handleShowTickets1).toHaveBeenCalled();
       await waitFor(() => screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`));
       expect(screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy();
+      // Expect click on arrow a second time hides bill (MM)
+      userEvent.click(icon1);
+      expect(
+        screen.queryByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)
+      ).not.toBeTruthy();
+      //
+
       icon2.addEventListener("click", handleShowTickets2);
       userEvent.click(icon2);
       expect(handleShowTickets2).toHaveBeenCalled();
       await waitFor(() => screen.getByTestId(`open-billUIUZtnPQvnbFnB0ozvJh`));
       expect(screen.getByTestId(`open-billUIUZtnPQvnbFnB0ozvJh`)).toBeTruthy();
+      // Expect click on arrow a second time hides bill (MM)
+      userEvent.click(icon2);
+      expect(
+        screen.queryByTestId(`open-billUIUZtnPQvnbFnB0ozvJh`)
+      ).not.toBeTruthy();
+      //
 
       icon3.addEventListener("click", handleShowTickets3);
       userEvent.click(icon3);
       expect(handleShowTickets3).toHaveBeenCalled();
       await waitFor(() => screen.getByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`));
       expect(screen.getByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`)).toBeTruthy();
+      // Expect click on arrow a second time hides bill (MM)
+      userEvent.click(icon3);
+      expect(
+        screen.queryByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`)
+      ).not.toBeTruthy();
+      //
     });
   });
 
@@ -189,6 +208,18 @@ describe("Given I am connected as an Admin", () => {
       document.body.innerHTML = cards([]);
       const iconEdit = screen.queryByTestId("open-bill47qAXb6fIm2zOKkLzMro");
       expect(iconEdit).toBeNull();
+    });
+  });
+
+  // [UNIT TEST] - First & last name user (MM)
+  describe("When I am on Dashboard", () => {
+    test("Then, cards should display my name", () => {
+      const dataName = [
+        { email: "jean.dupont@company.fr", date: "2004-04-01" },
+      ];
+      document.body.innerHTML = cards(dataName);
+      const nameUser = screen.getByText("jean dupont");
+      expect(nameUser).toBeTruthy();
     });
   });
 });
@@ -284,6 +315,9 @@ describe("Given I am connected as Admin and I am on Dashboard page and I clicked
         document.body.innerHTML = ROUTES({ pathname });
       };
       const store = null;
+      // Mock modal (MM)
+      $.fn.modal = jest.fn();
+      //
       const dashboard = new Dashboard({
         document,
         onNavigate,

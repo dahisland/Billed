@@ -3,17 +3,16 @@
  */
 
 import { screen, waitFor, fireEvent, getByTestId } from "@testing-library/dom";
-import userEvent from "@testing-library/user-event";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
-import store from "../app/Store.js";
 import { mockStore } from "../__mocks__/store.js";
 import router from "../app/Router.js";
 import "@testing-library/jest-dom";
 
 describe("Given I am connected as an employee", () => {
+  // [UNIT TEST] - Icon mail highlighting (MM)
   describe("When I am on NewBill Page", () => {
     test("Then mail icon in vertical layout should be highlighted", async () => {
       Object.defineProperty(window, "localStorage", {
@@ -38,7 +37,8 @@ describe("Given I am connected as an employee", () => {
     });
   });
 });
-// [INTEGRATION TEST] - Test API POST for data to send (MM)
+
+// [INTEGRATION TEST] - Test API POST for create new bill (MM)
 describe("Given I am on NewBill Page", () => {
   beforeEach(() => {
     const html = NewBillUI();
@@ -56,8 +56,9 @@ describe("Given I am on NewBill Page", () => {
     );
   });
 
+  // [UNIT TEST] - Valid proof uploaded (MM)
   describe("When I load an accepted file proof", () => {
-    test("Then proof should be accepted", async () => {
+    test("Then proof should be stored", async () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
@@ -85,6 +86,8 @@ describe("Given I am on NewBill Page", () => {
       expect(inputFile.files[0].name).toBe("test.png");
     });
   });
+
+  // [UNIT TEST] - Unvalid proof uploaded (MM)
   describe("When I load a non accepted file proof", () => {
     test("Then an error message should be displayed", async () => {
       const onNavigate = (pathname) => {
@@ -112,6 +115,8 @@ describe("Given I am on NewBill Page", () => {
       expect(fileNotAllowed).toBeTruthy();
     });
   });
+
+  // [UNIT TEST] - Valid proof uploaded to replace unvalid proof uploaded (MM)
   describe("When I change a non accepted file proof by an accepted file proof", () => {
     test("Then the error message should disappear", async () => {
       const onNavigate = (pathname) => {
@@ -145,8 +150,10 @@ describe("Given I am on NewBill Page", () => {
       );
     });
   });
-  describe("When I submit my form with good values", () => {
-    test("Then my form should be submitted and I should return on Bills page", async () => {
+
+  // [UNIT TEST] - Submit form with valid values (MM)
+  describe("When I submit my form with valid values", () => {
+    test("Then data should be stored and I should return on Bills page", async () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
@@ -175,98 +182,243 @@ describe("Given I am on NewBill Page", () => {
       expect(submitNewBill).toHaveBeenCalled();
       expect(screen.getByText("Mes notes de frais")).toBeTruthy();
     });
-    // TESTS ERRORS
-    describe("When an error 500 occurres on submit", () => {
-      test("Then a warning should be displayed on console", async () => {
+
+    // [UNIT TEST] - Submit form with unvalid values (MM)
+    describe("When I submit my form with unvalid values", () => {
+      test("Then I should stay on NewBill page", async () => {
         const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname });
         };
-        const store = mockStore;
-
         const newBill = new NewBill({
           document,
           onNavigate,
-          store,
+          store: mockStore,
           localStorage: window.localStorage,
-        });
-
-        const form = screen.getByTestId("form-new-bill");
-        const email = "a@a.fr";
-
-        const bill = {
-          email,
-          type: "Equipements et materiel",
-          name: "Achat ordinateur",
-          amount: 900,
-          date: "2020-04- 04",
-          vat: "70",
-          pct: 20,
-          commentary: "S'il vous plait",
-          fileUrl:
-            "https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a",
-          fileName: "test.png",
-          status: "pending",
-        };
-
-        jest.spyOn(mockStore, "bills");
-        jest.spyOn(console, "error");
-
-        const updatedStore = jest.fn(newBill.updateBill(bill));
-        store.bills.mockImplementation(() => {
-          return {
-            update: (bill) => {
-              return Promise.reject("Erreur 500");
-            },
-          };
-        });
-
-        form.addEventListener("submit", updatedStore);
-        fireEvent.submit(form);
-
-        await new Promise(process.nextTick);
-
-        expect(console.error).toHaveBeenCalledWith("Erreur 500");
-      });
-    });
-    describe("When an error 500 occurres on file upload", () => {
-      test("Then a warning should be displayed on console", async () => {
-        const onNavigate = (pathname) => {
-          document.body.innerHTML = ROUTES({ pathname });
-        };
-        const store = mockStore;
-
-        const newBill = new NewBill({
-          document,
-          onNavigate,
-          store,
-          localStorage: window.localStorage,
-        });
-
-        jest.spyOn(mockStore, "bills");
-        jest.spyOn(console, "error");
-
-        store.bills.mockImplementation(() => {
-          return {
-            create: (bill) => {
-              return Promise.reject("Erreur 500");
-            },
-          };
         });
 
         const inputFile = document.querySelector(`input[data-testid="file"]`);
-        const onFileChange = jest.fn(newBill.handleChangeFile);
-        const eventLoadFilePNG = {
-          target: {
-            files: [new File(["..."], "test.png", { type: "document/png" })],
+        const message = document.createElement("div");
+        message.classList.add("error-message");
+        message.innerHTML = `Fichier non valide`;
+        inputFile.parentNode.appendChild(message);
+
+        expect(screen.getByText("Fichier non valide")).toBeTruthy();
+
+        const submitNewBill = jest.fn(newBill.handleSubmit);
+        const form = screen.getByTestId("form-new-bill");
+
+        form.addEventListener("submit", submitNewBill);
+        fireEvent.submit(form);
+
+        expect(submitNewBill).toHaveBeenCalled();
+        expect(document.body.innerHTML).not.toContain("Mes note de frais");
+        expect(screen.getByText("Envoyer une note de frais")).toBeTruthy();
+      });
+    });
+
+    // [UNIT TEST] - Submit form with no store (MM)
+    describe("When I submit my form when there is no store", () => {
+      test("Then I should not navigate on Bills page", async () => {
+        const onNavigate = (pathname) => {
+          document.body.innerHTML = ROUTES({ pathname });
+        };
+        const newBill = new NewBill({
+          document,
+          onNavigate,
+          store: null,
+          localStorage: window.localStorage,
+        });
+
+        const submitNewBill = jest.fn(newBill.handleSubmit);
+        const form = screen.getByTestId("form-new-bill");
+
+        form.addEventListener("submit", submitNewBill);
+        fireEvent.submit(form);
+
+        expect(submitNewBill).toHaveBeenCalled();
+        expect(document.body.innerHTML).not.toContain("Mes note de frais");
+      });
+    });
+  });
+});
+
+// [UNIT TESTS] - Errors 404 & 500 for API (MM)
+describe("Given I am on NewBill Page", () => {
+  beforeEach(() => {
+    const html = NewBillUI();
+    document.body.innerHTML = html;
+
+    Object.defineProperty(window, "localStorage", {
+      value: localStorageMock,
+    });
+    window.localStorage.setItem(
+      "user",
+      JSON.stringify({
+        type: "Employee",
+        email: "jondoe@mail.com",
+      })
+    );
+  });
+
+  // [UNIT TEST] - Error 404 on submit (MM)
+  describe("When an error 404 occurres on submit", () => {
+    test("Then a warning should be displayed on console", async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const store = mockStore;
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store,
+        localStorage: window.localStorage,
+      });
+
+      const form = screen.getByTestId("form-new-bill");
+      const bill = {};
+
+      jest.spyOn(mockStore, "bills");
+      jest.spyOn(console, "error");
+
+      const updatedStore = jest.fn(newBill.updateBill(bill));
+      store.bills.mockImplementation(() => {
+        return {
+          update: (bill) => {
+            return Promise.reject("Erreur 404");
           },
         };
-        inputFile.addEventListener("change", onFileChange);
-        fireEvent.change(inputFile, eventLoadFilePNG);
-
-        await new Promise(process.nextTick);
-
-        expect(console.error).toHaveBeenCalledWith("Erreur 500");
       });
+
+      form.addEventListener("submit", updatedStore);
+      fireEvent.submit(form);
+
+      await new Promise(process.nextTick);
+
+      expect(console.error).toHaveBeenCalledWith("Erreur 404");
+    });
+  });
+
+  // [UNIT TEST] - Error 500 on submit (MM)
+  describe("When an error 500 occurres on submit", () => {
+    test("Then a warning should be displayed on console", async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const store = mockStore;
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store,
+        localStorage: window.localStorage,
+      });
+
+      const form = screen.getByTestId("form-new-bill");
+      const bill = {};
+
+      jest.spyOn(mockStore, "bills");
+      jest.spyOn(console, "error");
+
+      const updatedStore = jest.fn(newBill.updateBill(bill));
+      store.bills.mockImplementation(() => {
+        return {
+          update: (bill) => {
+            return Promise.reject("Erreur 500");
+          },
+        };
+      });
+
+      form.addEventListener("submit", updatedStore);
+      fireEvent.submit(form);
+
+      await new Promise(process.nextTick);
+
+      expect(console.error).toHaveBeenCalledWith("Erreur 500");
+    });
+  });
+
+  // [UNIT TEST] - Error 404 on loading change file (MM)
+  describe("When an error 404 occurres on file upload", () => {
+    test("Then a warning should be displayed on console", async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const store = mockStore;
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store,
+        localStorage: window.localStorage,
+      });
+
+      jest.spyOn(mockStore, "bills");
+      jest.spyOn(console, "error");
+
+      store.bills.mockImplementation(() => {
+        return {
+          create: (bill) => {
+            return Promise.reject("Erreur 404");
+          },
+        };
+      });
+
+      const inputFile = document.querySelector(`input[data-testid="file"]`);
+      const onFileChange = jest.fn(newBill.handleChangeFile);
+      const eventLoadFilePNG = {
+        target: {
+          files: [new File(["..."], "test.png", { type: "document/png" })],
+        },
+      };
+      inputFile.addEventListener("change", onFileChange);
+      fireEvent.change(inputFile, eventLoadFilePNG);
+
+      await new Promise(process.nextTick);
+
+      expect(console.error).toHaveBeenCalledWith("Erreur 404");
+    });
+  });
+
+  // [UNIT TEST] - Error 500 on loading change file (MM)
+  describe("When an error 500 occurres on file upload", () => {
+    test("Then a warning should be displayed on console", async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const store = mockStore;
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store,
+        localStorage: window.localStorage,
+      });
+
+      jest.spyOn(mockStore, "bills");
+      jest.spyOn(console, "error");
+
+      store.bills.mockImplementation(() => {
+        return {
+          create: (bill) => {
+            return Promise.reject("Erreur 500");
+          },
+        };
+      });
+
+      const inputFile = document.querySelector(`input[data-testid="file"]`);
+      const onFileChange = jest.fn(newBill.handleChangeFile);
+      const eventLoadFilePNG = {
+        target: {
+          files: [new File(["..."], "test.png", { type: "document/png" })],
+        },
+      };
+      inputFile.addEventListener("change", onFileChange);
+      fireEvent.change(inputFile, eventLoadFilePNG);
+
+      await new Promise(process.nextTick);
+
+      expect(console.error).toHaveBeenCalledWith("Erreur 500");
     });
   });
 });

@@ -51,6 +51,7 @@ describe("Given I am connected as an employee", () => {
       const datesSorted = [...dates].sort(antiChrono);
       expect(dates).toEqual(datesSorted);
     });
+
     // [UNIT TEST] - Function "add new bill" (MM)
     describe("When I click on button : Add new bill", () => {
       test("Then page should display form : Send new bill", () => {
@@ -79,6 +80,7 @@ describe("Given I am connected as an employee", () => {
         expect(textSendBill).toBeTruthy();
       });
     });
+
     // [UNIT TEST] - Function "Display proof" (MM)
     describe("When I click on icon eye : display proof", () => {
       test("Then page should open a modal displaying proof", () => {
@@ -141,6 +143,7 @@ describe("Given I am a user connected as Employee", () => {
       expect(contentBills.children.length).toEqual(arrBillsStoredMock.length);
       expect(contentBills.innerHTML).toMatch(typeFirstBill);
     });
+
     // [UNIT TEST] - Test with corrupted/uncorrupted dates (MM)
     describe("When bills have been fetched from mock API GET", () => {
       test("Then if date isn't corrupted, bills should be displayed with date formatted & status", async () => {
@@ -189,6 +192,7 @@ describe("Given I am a user connected as Employee", () => {
         expect(firstBillDisplayed).toMatch(new RegExp(`${dateInStore}`));
       });
     });
+
     // [UNIT TEST] - Errors 404 & 500 for API (MM)
     describe("When an error occurs by fetching bills with API", () => {
       beforeEach(() => {
@@ -239,6 +243,5 @@ describe("Given I am a user connected as Employee", () => {
         expect(message).toBeTruthy();
       });
     });
-    //
   });
 });
