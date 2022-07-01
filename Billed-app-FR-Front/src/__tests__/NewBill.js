@@ -7,6 +7,7 @@ import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
+import store from "../app/Store.js";
 import { mockStore } from "../__mocks__/store.js";
 import router from "../app/Router.js";
 import "@testing-library/jest-dom";
@@ -164,8 +165,15 @@ describe("Given I am on NewBill Page", () => {
         localStorage: window.localStorage,
       });
 
+      const inputName = screen.getByTestId("expense-name");
+      fireEvent.change(inputName, { target: { value: "Achat ordinateur" } });
+      const inputAmount = screen.getByTestId("amount");
+      fireEvent.change(inputAmount, { target: { value: "250" } });
+      const inputDate = screen.getByTestId("datepicker");
+      fireEvent.change(inputDate, { target: { value: new Date() } });
+      const inputPct = screen.getByTestId("pct");
+      fireEvent.change(inputPct, { target: { value: "30" } });
       const inputFile = document.querySelector(`input[data-testid="file"]`);
-
       const eventLoadFilePNG = {
         target: {
           files: [new File(["..."], "test.png", { type: "document/png" })],
@@ -179,8 +187,12 @@ describe("Given I am on NewBill Page", () => {
       form.addEventListener("submit", submitNewBill);
       fireEvent.submit(form);
 
+      const rows = await screen.getByTestId("tbody");
+
       expect(submitNewBill).toHaveBeenCalled();
       expect(screen.getByText("Mes notes de frais")).toBeTruthy();
+      // Test if a new bill with data fetched has been created and displayed
+      expect(rows.childNodes.length).toBe(1);
     });
 
     // [UNIT TEST] - Submit form with unvalid values (MM)
@@ -260,7 +272,7 @@ describe("Given I am on NewBill Page", () => {
     );
   });
 
-  // [UNIT TEST] - Error 404 on submit (MM)
+  // [UNIT TEST] - Error 404 on submit when bill storage is created (MM)
   describe("When an error 404 occurres on submit", () => {
     test("Then a warning should be displayed on console", async () => {
       const onNavigate = (pathname) => {
@@ -276,21 +288,20 @@ describe("Given I am on NewBill Page", () => {
       });
 
       const form = screen.getByTestId("form-new-bill");
-      const bill = {};
 
       jest.spyOn(mockStore, "bills");
       jest.spyOn(console, "error");
 
-      const updatedStore = jest.fn(newBill.updateBill(bill));
+      const submit = jest.fn(newBill.handleSubmit);
       store.bills.mockImplementation(() => {
         return {
-          update: (bill) => {
+          create: (bill) => {
             return Promise.reject("Erreur 404");
           },
         };
       });
 
-      form.addEventListener("submit", updatedStore);
+      form.addEventListener("submit", submit);
       fireEvent.submit(form);
 
       await new Promise(process.nextTick);
@@ -299,7 +310,7 @@ describe("Given I am on NewBill Page", () => {
     });
   });
 
-  // [UNIT TEST] - Error 500 on submit (MM)
+  // [UNIT TEST] - Error 500 on submit when bill storage is created (MM)
   describe("When an error 500 occurres on submit", () => {
     test("Then a warning should be displayed on console", async () => {
       const onNavigate = (pathname) => {
@@ -315,106 +326,21 @@ describe("Given I am on NewBill Page", () => {
       });
 
       const form = screen.getByTestId("form-new-bill");
-      const bill = {};
 
       jest.spyOn(mockStore, "bills");
       jest.spyOn(console, "error");
 
-      const updatedStore = jest.fn(newBill.updateBill(bill));
+      const submit = jest.fn(newBill.handleSubmit);
       store.bills.mockImplementation(() => {
         return {
-          update: (bill) => {
+          create: (bill) => {
             return Promise.reject("Erreur 500");
           },
         };
       });
 
-      form.addEventListener("submit", updatedStore);
+      form.addEventListener("submit", submit);
       fireEvent.submit(form);
-
-      await new Promise(process.nextTick);
-
-      expect(console.error).toHaveBeenCalledWith("Erreur 500");
-    });
-  });
-
-  // [UNIT TEST] - Error 404 on loading change file (MM)
-  describe("When an error 404 occurres on file upload", () => {
-    test("Then a warning should be displayed on console", async () => {
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname });
-      };
-      const store = mockStore;
-
-      const newBill = new NewBill({
-        document,
-        onNavigate,
-        store,
-        localStorage: window.localStorage,
-      });
-
-      jest.spyOn(mockStore, "bills");
-      jest.spyOn(console, "error");
-
-      store.bills.mockImplementation(() => {
-        return {
-          create: (bill) => {
-            return Promise.reject("Erreur 404");
-          },
-        };
-      });
-
-      const inputFile = document.querySelector(`input[data-testid="file"]`);
-      const onFileChange = jest.fn(newBill.handleChangeFile);
-      const eventLoadFilePNG = {
-        target: {
-          files: [new File(["..."], "test.png", { type: "document/png" })],
-        },
-      };
-      inputFile.addEventListener("change", onFileChange);
-      fireEvent.change(inputFile, eventLoadFilePNG);
-
-      await new Promise(process.nextTick);
-
-      expect(console.error).toHaveBeenCalledWith("Erreur 404");
-    });
-  });
-
-  // [UNIT TEST] - Error 500 on loading change file (MM)
-  describe("When an error 500 occurres on file upload", () => {
-    test("Then a warning should be displayed on console", async () => {
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname });
-      };
-      const store = mockStore;
-
-      const newBill = new NewBill({
-        document,
-        onNavigate,
-        store,
-        localStorage: window.localStorage,
-      });
-
-      jest.spyOn(mockStore, "bills");
-      jest.spyOn(console, "error");
-
-      store.bills.mockImplementation(() => {
-        return {
-          create: (bill) => {
-            return Promise.reject("Erreur 500");
-          },
-        };
-      });
-
-      const inputFile = document.querySelector(`input[data-testid="file"]`);
-      const onFileChange = jest.fn(newBill.handleChangeFile);
-      const eventLoadFilePNG = {
-        target: {
-          files: [new File(["..."], "test.png", { type: "document/png" })],
-        },
-      };
-      inputFile.addEventListener("change", onFileChange);
-      fireEvent.change(inputFile, eventLoadFilePNG);
 
       await new Promise(process.nextTick);
 

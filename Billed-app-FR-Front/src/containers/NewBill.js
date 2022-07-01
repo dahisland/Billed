@@ -41,25 +41,6 @@ export default class NewBill {
         this.document.querySelector(".error-message").remove();
       }
       // END [BUG HUNT "Bills" CORRECTION]
-
-      const formData = new FormData();
-      const email = JSON.parse(localStorage.getItem("user")).email;
-      formData.append("file", file);
-      formData.append("email", email);
-      this.store
-        .bills()
-        .create({
-          data: formData,
-          headers: {
-            noContentType: true,
-          },
-        })
-        .then(({ fileUrl, key }) => {
-          this.billId = key;
-          this.fileUrl = fileUrl;
-          this.fileName = fileName;
-        })
-        .catch((error) => console.error(error));
     }
   };
 
@@ -72,6 +53,10 @@ export default class NewBill {
         'e.target.querySelector(`input[data-testid="datepicker"]`).value',
         e.target.querySelector(`input[data-testid="datepicker"]`).value
       );
+      // [CORRECTION CALL API] - Api were created on file change instead of on submit
+      const file = e.target.querySelector(`input[data-testid="file"]`).files[0];
+      const formData = new FormData();
+      //
       const email = JSON.parse(localStorage.getItem("user")).email;
       const bill = {
         email,
@@ -92,12 +77,33 @@ export default class NewBill {
         fileName: this.fileName,
         status: "pending",
       };
-      this.updateBill(bill);
+      // [CORRECTION CALL API] - Api were created on file change instead of on submit
+      formData.append("file", file);
+      formData.append("email", email);
+      if (this.store) {
+        this.store
+          .bills()
+          .create({
+            data: formData,
+            headers: {
+              noContentType: true,
+            },
+          })
+          .then(({ fileUrl, key }) => {
+            this.billId = key;
+            this.fileUrl = fileUrl;
+            this.fileName = file.name;
+            this.updateBill(bill);
+          })
+          .catch((error) => console.error(error));
+      }
+      //
       this.onNavigate(ROUTES_PATH["Bills"]);
     }
   };
 
   // not need to cover this function by tests
+  /* istanbul ignore next */
   updateBill = (bill) => {
     if (this.store) {
       this.store
