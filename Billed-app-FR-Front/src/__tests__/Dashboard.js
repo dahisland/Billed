@@ -47,6 +47,29 @@ describe("Given I am connected as an Admin", () => {
     });
   });
 
+  // [UNIT TEST] - Dahsboard display when there's no store ((MM)
+  describe("When I am on Dashboard Page and there is no store", () => {
+    test("Then no bills should be displayed", async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      let bills = [];
+      const dashboard = new Dashboard({
+        document,
+        onNavigate,
+        store: null,
+        bills,
+        localStorage: window.localStorage,
+      });
+
+      const arrayBills = await dashboard.getBillsAllUsers();
+
+      document.body.innerHTML = DashboardUI({ data: arrayBills });
+      const bigIcon = screen.getByTestId("big-billed-icon");
+      expect(bigIcon).toBeTruthy();
+    });
+  });
+
   describe("When I am on Dashboard page and I click on arrow", () => {
     test("Then, tickets list should be unfolding, and cards should appear", async () => {
       const onNavigate = (pathname) => {

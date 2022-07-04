@@ -191,65 +191,102 @@ describe("Given I am on NewBill Page", () => {
 
       expect(submitNewBill).toHaveBeenCalled();
       expect(screen.getByText("Mes notes de frais")).toBeTruthy();
-      // Test if a new bill with data fetched has been created and displayed
+      // Test if a new bill has been created
       expect(rows.childNodes.length).toBe(1);
     });
-
-    // [UNIT TEST] - Submit form with unvalid values (MM)
-    describe("When I submit my form with unvalid values", () => {
-      test("Then I should stay on NewBill page", async () => {
-        const onNavigate = (pathname) => {
-          document.body.innerHTML = ROUTES({ pathname });
-        };
-        const newBill = new NewBill({
-          document,
-          onNavigate,
-          store: mockStore,
-          localStorage: window.localStorage,
-        });
-
-        const inputFile = document.querySelector(`input[data-testid="file"]`);
-        const message = document.createElement("div");
-        message.classList.add("error-message");
-        message.innerHTML = `Fichier non valide`;
-        inputFile.parentNode.appendChild(message);
-
-        expect(screen.getByText("Fichier non valide")).toBeTruthy();
-
-        const submitNewBill = jest.fn(newBill.handleSubmit);
-        const form = screen.getByTestId("form-new-bill");
-
-        form.addEventListener("submit", submitNewBill);
-        fireEvent.submit(form);
-
-        expect(submitNewBill).toHaveBeenCalled();
-        expect(document.body.innerHTML).not.toContain("Mes note de frais");
-        expect(screen.getByText("Envoyer une note de frais")).toBeTruthy();
+  });
+  // [UNIT TEST] - Submit form with unvalid values (MM)
+  describe("When I submit my form with unvalid values", () => {
+    test("Then I should stay on NewBill page", async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store: mockStore,
+        localStorage: window.localStorage,
       });
+
+      const inputFile = document.querySelector(`input[data-testid="file"]`);
+      const message = document.createElement("div");
+      message.classList.add("error-message");
+      message.innerHTML = `Fichier non valide`;
+      inputFile.parentNode.appendChild(message);
+
+      expect(screen.getByText("Fichier non valide")).toBeTruthy();
+
+      const submitNewBill = jest.fn(newBill.handleSubmit);
+      const form = screen.getByTestId("form-new-bill");
+
+      form.addEventListener("submit", submitNewBill);
+      fireEvent.submit(form);
+
+      expect(submitNewBill).toHaveBeenCalled();
+      expect(document.body.innerHTML).not.toContain("Mes note de frais");
+      expect(screen.getByText("Envoyer une note de frais")).toBeTruthy();
     });
+  });
 
-    // [UNIT TEST] - Submit form with no store (MM)
-    describe("When I submit my form when there is no store", () => {
-      test("Then I should not navigate on Bills page", async () => {
-        const onNavigate = (pathname) => {
-          document.body.innerHTML = ROUTES({ pathname });
-        };
-        const newBill = new NewBill({
-          document,
-          onNavigate,
-          store: null,
-          localStorage: window.localStorage,
-        });
-
-        const submitNewBill = jest.fn(newBill.handleSubmit);
-        const form = screen.getByTestId("form-new-bill");
-
-        form.addEventListener("submit", submitNewBill);
-        fireEvent.submit(form);
-
-        expect(submitNewBill).toHaveBeenCalled();
-        expect(document.body.innerHTML).not.toContain("Mes note de frais");
+  // [UNIT TEST] - Submit form with no store (MM)
+  describe("When I submit my form when there is no store", () => {
+    test("Then I should not navigate on Bills page", async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store: null,
+        localStorage: window.localStorage,
       });
+
+      const submitNewBill = jest.fn(newBill.handleSubmit);
+      const form = screen.getByTestId("form-new-bill");
+
+      form.addEventListener("submit", submitNewBill);
+      fireEvent.submit(form);
+
+      expect(submitNewBill).toHaveBeenCalled();
+      expect(document.body.innerHTML).not.toContain("Mes note de frais");
+    });
+  });
+  // [UNIT TEST] - Error API on submit when bill storage is created (MM)
+  describe("When an error occurres with API on submit", () => {
+    test("Then a warning should be displayed on console", async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const store = mockStore;
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store,
+        localStorage: window.localStorage,
+      });
+
+      const form = screen.getByTestId("form-new-bill");
+
+      jest.spyOn(mockStore, "bills");
+      jest.spyOn(console, "error");
+
+      const submit = jest.fn(newBill.handleSubmit);
+      store.bills.mockImplementation(() => {
+        return {
+          create: (bill) => {
+            return Promise.reject(new Error("Erreur"));
+          },
+        };
+      });
+
+      form.addEventListener("submit", submit);
+      fireEvent.submit(form);
+
+      await new Promise(process.nextTick);
+
+      expect(console.error).toHaveBeenCalledWith(new Error("Erreur"));
+      expect(console.error).toHaveBeenCalledTimes(2);
     });
   });
 });
@@ -296,7 +333,7 @@ describe("Given I am on NewBill Page", () => {
       store.bills.mockImplementation(() => {
         return {
           create: (bill) => {
-            return Promise.reject("Erreur 404");
+            return Promise.reject(new Error("Erreur 404"));
           },
         };
       });
@@ -306,7 +343,7 @@ describe("Given I am on NewBill Page", () => {
 
       await new Promise(process.nextTick);
 
-      expect(console.error).toHaveBeenCalledWith("Erreur 404");
+      expect(console.error).toHaveBeenCalledWith(new Error("Erreur 404"));
     });
   });
 
@@ -334,7 +371,7 @@ describe("Given I am on NewBill Page", () => {
       store.bills.mockImplementation(() => {
         return {
           create: (bill) => {
-            return Promise.reject("Erreur 500");
+            return Promise.reject(new Error("Erreur 500"));
           },
         };
       });
@@ -344,7 +381,7 @@ describe("Given I am on NewBill Page", () => {
 
       await new Promise(process.nextTick);
 
-      expect(console.error).toHaveBeenCalledWith("Erreur 500");
+      expect(console.error).toHaveBeenCalledWith(new Error("Erreur 500"));
     });
   });
 });

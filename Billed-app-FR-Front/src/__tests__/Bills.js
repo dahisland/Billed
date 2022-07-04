@@ -12,10 +12,11 @@ import store from "../app/Store.js";
 import { formatDate, formatStatus } from "../app/format";
 import { mockStore, mockCorruptedStore } from "../__mocks__/store.js";
 import router from "../app/Router.js";
-import userEvent from "@testing-library/user-event";
+// import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
 describe("Given I am connected as an employee", () => {
+  // [UNIT TEST] - Icon window highlighten (MM)
   describe("When I am on Bills Page", () => {
     test("Then bill icon in vertical layout should be highlighted", async () => {
       Object.defineProperty(window, "localStorage", {
@@ -40,6 +41,33 @@ describe("Given I am connected as an employee", () => {
         new RegExp("active-icon")
       );
     });
+  });
+
+  // [UNIT TEST] - UI display when there's no store (MM)
+  describe("When I am on Bills Page and there is no store", () => {
+    test("Then no bills should be displayed", async () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const displayBills = new Bills({
+        document,
+        onNavigate,
+        store: null,
+        localStorage: window.localStorage,
+      });
+
+      const arrayBills = await displayBills.getBills();
+
+      document.body.innerHTML = BillsUI({ data: arrayBills });
+      const rows = screen.getByTestId("tbody");
+      expect(rows.children.length).toBe(0);
+      const iconEye = screen.queryByTestId("icon-eye");
+      expect(iconEye).not.toBe();
+    });
+  });
+
+  // [UNIT TEST] - UI display when there's a store (MM)
+  describe("When I am on Bills Page and there's a store", () => {
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills });
       const dates = screen
