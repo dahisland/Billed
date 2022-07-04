@@ -62,7 +62,7 @@ describe("Given I am connected as an employee", () => {
       const rows = screen.getByTestId("tbody");
       expect(rows.children.length).toBe(0);
       const iconEye = screen.queryByTestId("icon-eye");
-      expect(iconEye).not.toBe();
+      expect(iconEye).not.toBeTruthy();
     });
   });
 

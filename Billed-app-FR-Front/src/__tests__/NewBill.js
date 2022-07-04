@@ -187,14 +187,11 @@ describe("Given I am on NewBill Page", () => {
       form.addEventListener("submit", submitNewBill);
       fireEvent.submit(form);
 
-      const rows = await screen.getByTestId("tbody");
-
       expect(submitNewBill).toHaveBeenCalled();
       expect(screen.getByText("Mes notes de frais")).toBeTruthy();
-      // Test if a new bill has been created
-      expect(rows.childNodes.length).toBe(1);
     });
   });
+
   // [UNIT TEST] - Submit form with unvalid values (MM)
   describe("When I submit my form with unvalid values", () => {
     test("Then I should stay on NewBill page", async () => {
@@ -251,6 +248,7 @@ describe("Given I am on NewBill Page", () => {
       expect(document.body.innerHTML).not.toContain("Mes note de frais");
     });
   });
+
   // [UNIT TEST] - Error API on submit when bill storage is created (MM)
   describe("When an error occurres with API on submit", () => {
     test("Then a warning should be displayed on console", async () => {
