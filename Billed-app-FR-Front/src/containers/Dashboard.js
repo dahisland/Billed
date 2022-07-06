@@ -150,19 +150,19 @@ export default class {
         cards(filteredBills(bills, getStatus(this.index)))
       );
       this.counter++;
+      // [BUG HUNT "Dashboard" CORRECTION] - Stop event propagation for element
+      let arrBillsfiltered = filteredBills(bills, getStatus(this.index));
+      arrBillsfiltered.forEach((bill) => {
+        $(`#open-bill${bill.id}`).click((e) => {
+          this.handleEditTicket(e, bill, bills);
+        });
+      });
+      // END [BUG HUNT "Dashboard" CORRECTION]
     } else {
       $(`#arrow-icon${this.index}`).css({ transform: "rotate(90deg)" });
       $(`#status-bills-container${this.index}`).html("");
       this.counter++;
     }
-    bills.forEach((bill) => {
-      $(`#open-bill${bill.id}`).click((e) => {
-        // [BUG HUNT "Dashboard" CORRECTION] - Stop event propagation for element
-        e.stopImmediatePropagation();
-        // END [BUG HUNT "Dashboard" CORRECTION]
-        this.handleEditTicket(e, bill, bills);
-      });
-    });
   }
 
   getBillsAllUsers = () => {

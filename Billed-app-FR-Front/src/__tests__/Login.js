@@ -50,7 +50,6 @@ describe("Given that I am a user on login page", () => {
     });
   });
 
-  // A debug (MM)
   describe("When I do fill fields in correct format and I click on employee button Login In", () => {
     test("Then I should be identified as an Employee in app", () => {
       document.body.innerHTML = LoginUI();
