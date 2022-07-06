@@ -150,18 +150,39 @@ export default class {
         cards(filteredBills(bills, getStatus(this.index)))
       );
       this.counter++;
-      // [BUG HUNT "Dashboard" CORRECTION] - Stop event propagation for element
+      // [BUG HUNT "Dashboard" CORRECTION] - Apply event only for displayed cards (MM)
       let arrBillsfiltered = filteredBills(bills, getStatus(this.index));
       arrBillsfiltered.forEach((bill) => {
         $(`#open-bill${bill.id}`).click((e) => {
           this.handleEditTicket(e, bill, bills);
         });
       });
-      // END [BUG HUNT "Dashboard" CORRECTION]
+      // END [BUG HUNT "Dashboard" CORRECTION] (MM)
+
+      // Other solution to solve bug (MM)
+      // let cardsFiltered = filteredBills(bills, getStatus(this.index));
+      // cardsFiltered.forEach((bill) => {
+      //   $(`#open-bill${bill.id}`).click((e) => {
+      //     $(`#open-bill${bill.id}`).on(
+      //       "click",
+      //       this.handleEditTicket(e, bill, bills)
+      //     );
+      //   });
+      // });
     } else {
       $(`#arrow-icon${this.index}`).css({ transform: "rotate(90deg)" });
       $(`#status-bills-container${this.index}`).html("");
       this.counter++;
+      // Other solution to solve bug (MM)
+      // let cardsFiltered = filteredBills(bills, getStatus(this.index));
+      // cardsFiltered.forEach((bill) => {
+      //   $(`#open-bill${bill.id}`).click((e) => {
+      //     $(`#open-bill${bill.id}`).off(
+      //       "click",
+      //       this.handleEditTicket(e, bill, bills)
+      //     );
+      //   });
+      // });
     }
   }
 
