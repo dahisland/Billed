@@ -118,3 +118,7 @@ $jest src/__tests__/your_test_file.js
 ## JEST COVERAGE
 
 `http://127.0.0.1:8080/coverage/lcov-report/`
+
+## END TO END PLAN
+
+A end to end plan sheet have been redacted for the employee route. You can consult it [here](./readme-assets/end-to-end-plan-for-employee.pdf) .
